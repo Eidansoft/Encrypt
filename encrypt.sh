@@ -82,6 +82,30 @@ function deleteFiles {
 	done < $doneFiles
 }
 
+function getPassword {
+	operation=$1
+
+	[ "$operation" = "encrypt" ] && doubleCheck="true"
+
+	while true; do
+		echo >&2 "Type password: "
+		read -s pw1
+	
+		if [ "$doubleCheck" != "" ]; then
+			echo >&2 "Re-type password: "
+			read -s pw2
+			if [ "$pw1" = "$pw2" ]; then
+				break
+			else
+				echo >&2 "Passwords are not equals"
+			fi
+		else
+			break
+		fi
+	done
+	echo $pw1
+}
+
 function _init {
 	doneFiles="/tmp/doneFiles.tmp.$(date +%s)"
 	
@@ -96,8 +120,8 @@ function _init {
 	done
 	echo "${operation}ing folder $folder"
 
-	echo "Password: "
-	read -s pw
+	pw=$(getPassword $operation)
+
 	processFolder $operation $pw $folder $doneFiles
 
 	# Check for errors
